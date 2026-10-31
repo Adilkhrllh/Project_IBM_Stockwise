@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <!--
+    StockWise – Sistem Manajemen Stok Barang Berbasis Web
+    File: index.html
+    Deskripsi: Halaman utama aplikasi, berisi struktur HTML semua section.
+    Teknologi: HTML5, CSS3, JavaScript (tanpa framework/backend).
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockWise – Manajemen Stok Barang</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== SIDEBAR KIRI ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">📦</span>
+      <span class="brand-name">StockWise</span>
+    </div>
+    <nav class="sidebar-nav">
+      <!-- Setiap tombol nav akan menampilkan section yang sesuai -->
+      <button class="nav-item active" onclick="showPage('dashboard')">
+        <span class="nav-icon">🏠</span> Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('barang')">
+        <span class="nav-icon">🗂️</span> Data Barang
+      </button>
+      <button class="nav-item" onclick="showPage('masuk')">
+        <span class="nav-icon">📥</span> Barang Masuk
+      </button>
+      <button class="nav-item" onclick="showPage('keluar')">
+        <span class="nav-icon">📤</span> Barang Keluar
+      </button>
+      <button class="nav-item" onclick="showPage('laporan')">
+        <span class="nav-icon">📊</span> Laporan
+      </button>
+    </nav>
+    <div class="sidebar-footer">StockWise v1.0</div>
+  </aside>
+
+  <!-- ===== KONTEN UTAMA ===== -->
+  <main class="main-content">
+
+    <!-- HEADER ATAS -->
+    <header class="topbar">
+      <!-- Tombol hamburger untuk tampilan mobile -->
+      <button class="hamburger" onclick="toggleSidebar()" title="Buka/Tutup Menu">☰</button>
+      <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
+      <div class="topbar-info">
+        <span id="currentDate"></span>
+      </div>
+    </header>
+
+    <!-- ========== SECTION: DASHBOARD ========== -->
+    <section id="page-dashboard" class="page active">
+      <div class="section-header">
+        <h2>Ringkasan Stok</h2>
+        <p>Selamat datang di StockWise – pantau stok barang Anda dengan mudah.</p>
+      </div>
+
+      <!-- Kartu statistik -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">🗂️</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Jenis Barang</span>
+            <span class="stat-value" id="statJenis">0</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Stok</span>
+            <span class="stat-value" id="statStok">0</span>
+          </div>
+        </div>
+        <div class="stat-card teal">
+          <div class="stat-icon">📥</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Barang Masuk</span>
+            <span class="stat-value" id="statMasuk">0</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">📤</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Barang Keluar</span>
+            <span class="stat-value" id="statKeluar">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel stok menipis di dashboard -->
+      <div class="card">
+        <div class="card-header">
+          <h3>⚠️ Stok Menipis <small>(stok ≤ 10 unit)</small></h3>
+        </div>
+        <div class="table-wrapper">
+          <table id="tblMenipis">
+            <thead>
+              <tr>
+                <th>Kode</th><th>Nama Barang</th><th>Kategori</th><th>Stok</th>
+              </tr>
+            </thead>
+            <tbody id="bodyMenipis">
+              <tr><td colspan="4" class="empty-row">Tidak ada stok menipis.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SECTION: DATA BARANG ========== -->
+    <section id="page-barang" class="page">
+      <div class="section-header">
+        <h2>Data Barang</h2>
+        <p>Kelola semua data barang: tambah, edit, dan hapus.</p>
+      </div>
+
+      <!-- Form tambah/edit barang -->
+      <div class="card">
+        <div class="card-header">
+          <h3 id="formBarangTitle">➕ Tambah Barang Baru</h3>
+        </div>
+        <form id="formBarang" onsubmit="simpanBarang(event)">
+          <!-- Input tersembunyi untuk menyimpan index saat edit -->
+          <input type="hidden" id="editIndex" value="-1" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="kodeBarang">Kode Barang <span class="required">*</span></label>
+              <input type="text" id="kodeBarang" placeholder="Contoh: BRG001" required />
+            </div>
+            <div class="form-group">
+              <label for="namaBarang">Nama Barang <span class="required">*</span></label>
+              <input type="text" id="namaBarang" placeholder="Contoh: Buku Tulis A4" required />
+            </div>
+            <div class="form-group">
+              <label for="kategori">Kategori <span class="required">*</span></label>
+              <input type="text" id="kategori" placeholder="Contoh: Alat Tulis" required />
+            </div>
+            <div class="form-group">
+              <label for="harga">Harga (Rp) <span class="required">*</span></label>
+              <input type="number" id="harga" placeholder="Contoh: 5000" min="0" required />
+            </div>
+            <div class="form-group">
+              <label for="stokAwal">Stok Awal <span class="required">*</span></label>
+              <input type="number" id="stokAwal" placeholder="Contoh: 50" min="0" required />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Simpan</button>
+            <button type="button" class="btn btn-secondary" onclick="resetFormBarang()">🔄 Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabel daftar barang -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📋 Daftar Barang</h3>
+          <input type="text" id="searchBarang" placeholder="🔍 Cari barang..." oninput="renderTabelBarang()" class="search-input" />
+        </div>
+        <div class="table-wrapper">
+          <table id="tblBarang">
+            <thead>
+              <tr>
+                <th>No</th><th>Kode</th><th>Nama Barang</th><th>Kategori</th>
+                <th>Harga</th><th>Stok</th><th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="bodyBarang">
+              <tr><td colspan="7" class="empty-row">Belum ada data barang.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SECTION: BARANG MASUK ========== -->
+    <section id="page-masuk" class="page">
+      <div class="section-header">
+        <h2>Barang Masuk</h2>
+        <p>Tambah stok barang – stok otomatis bertambah setelah disimpan.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>📥 Form Barang Masuk</h3></div>
+        <form id="formMasuk" onsubmit="simpanMasuk(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pilihBarangMasuk">Pilih Barang <span class="required">*</span></label>
+              <select id="pilihBarangMasuk" required>
+                <option value="">-- Pilih Barang --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="jumlahMasuk">Jumlah Masuk <span class="required">*</span></label>
+              <input type="number" id="jumlahMasuk" placeholder="Contoh: 20" min="1" required />
+            </div>
+            <div class="form-group">
+              <label for="keteranganMasuk">Keterangan</label>
+              <input type="text" id="keteranganMasuk" placeholder="Contoh: Restok dari supplier" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Simpan Transaksi</button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('formMasuk').reset()">🔄 Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Riwayat transaksi masuk -->
+      <div class="card">
+        <div class="card-header"><h3>📋 Riwayat Barang Masuk</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>No</th><th>Tanggal</th><th>Kode</th><th>Nama Barang</th><th>Jumlah</th><th>Keterangan</th></tr>
+            </thead>
+            <tbody id="bodyMasuk">
+              <tr><td colspan="6" class="empty-row">Belum ada transaksi masuk.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SECTION: BARANG KELUAR ========== -->
+    <section id="page-keluar" class="page">
+      <div class="section-header">
+        <h2>Barang Keluar</h2>
+        <p>Kurangi stok barang – transaksi ditolak jika jumlah melebihi stok tersedia.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>📤 Form Barang Keluar</h3></div>
+        <form id="formKeluar" onsubmit="simpanKeluar(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pilihBarangKeluar">Pilih Barang <span class="required">*</span></label>
+              <select id="pilihBarangKeluar" required onchange="tampilStokKeluar()">
+                <option value="">-- Pilih Barang --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="jumlahKeluar">Jumlah Keluar <span class="required">*</span></label>
+              <input type="number" id="jumlahKeluar" placeholder="Contoh: 5" min="1" required />
+              <!-- Info stok tersedia -->
+              <small id="infoStokKeluar" class="info-text"></small>
+            </div>
+            <div class="form-group">
+              <label for="keteranganKeluar">Keterangan</label>
+              <input type="text" id="keteranganKeluar" placeholder="Contoh: Dijual ke pelanggan" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Simpan Transaksi</button>
+            <button type="button" class="btn btn-secondary" onclick="resetFormKeluar()">🔄 Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Riwayat transaksi keluar -->
+      <div class="card">
+        <div class="card-header"><h3>📋 Riwayat Barang Keluar</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>No</th><th>Tanggal</th><th>Kode</th><th>Nama Barang</th><th>Jumlah</th><th>Keterangan</th></tr>
+            </thead>
+            <tbody id="bodyKeluar">
+              <tr><td colspan="6" class="empty-row">Belum ada transaksi keluar.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SECTION: LAPORAN ========== -->
+    <section id="page-laporan" class="page">
+      <div class="section-header">
+        <h2>Laporan Stok</h2>
+        <p>Lihat seluruh stok dan barang menipis, lalu cetak laporan.</p>
+      </div>
+
+      <!-- Tombol cetak -->
+      <div class="laporan-actions">
+        <button class="btn btn-primary" onclick="cetakLaporan()">🖨️ Cetak Laporan</button>
+      </div>
+
+      <!-- Laporan seluruh stok -->
+      <div class="card" id="laporanStok">
+        <div class="card-header"><h3>📦 Seluruh Stok Barang</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>No</th><th>Kode</th><th>Nama Barang</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Status</th></tr>
+            </thead>
+            <tbody id="bodyLaporanStok">
+              <tr><td colspan="7" class="empty-row">Belum ada data.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Laporan stok menipis -->
+      <div class="card" id="laporanMenipis">
+        <div class="card-header"><h3>⚠️ Barang Stok Menipis (≤ 10 unit)</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>No</th><th>Kode</th><th>Nama Barang</th><th>Kategori</th><th>Stok</th></tr>
+            </thead>
+            <tbody id="bodyLaporanMenipis">
+              <tr><td colspan="5" class="empty-row">Tidak ada stok menipis.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- end .main-content -->
+
+  <!-- Toast notifikasi -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Muat script JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
